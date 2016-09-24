@@ -1,16 +1,18 @@
 FROM hypriot/rpi-java:latest
 MAINTAINER Johannes Wenzel <johannes.wenzel@web.de>
 
-ENV NEO4J_SHA256 e1da51163eb18380623788eabea34dfe23ee21c99deca4e7922094b0d242e805
-ENV NEO4J_URI http://dist.neo4j.org/neo4j-community-3.0.4-unix.tar.gz
 
-RUN apt-get update 
-RUN apt-get -y install curl
+ENV NEO4J_SHA256 efeab41183e9e5fa94a2d396c65ea93a24e9f105cb3b5f0d0a8e42fb709f4660
+ENV NEO4J_TARBALL neo4j-community-3.0.6-unix.tar.gz
+ENV NEO4J_URI http://dist.neo4j.org/neo4j-community-3.0.6-unix.tar.gz
 
-RUN curl --fail --silent --show-error --location --output neo4j.tar.gz $NEO4J_URI \
-    && tar --extract --file neo4j.tar.gz --directory /var/lib \
+RUN apt-get update \
+    && apt-get -y install curl \
+    && curl --fail --silent --show-error --location --remote-name ${NEO4J_URI} \
+    && echo "${NEO4J_SHA256} *${NEO4J_TARBALL}" | sha256sum --check --quiet - \
+    && tar --extract --file ${NEO4J_TARBALL} --directory /var/lib \
     && mv /var/lib/neo4j-* /var/lib/neo4j \
-    && rm neo4j.tar.gz
+    && rm ${NEO4J_TARBALL}
 
 WORKDIR /var/lib/neo4j
 
